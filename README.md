@@ -74,5 +74,39 @@ python manage.py runserver
 Frontend (React)
 
 cd frontend
+rm package-lock.json
 npm install
 npm run dev               # o
+
+
+
+
+🌐 API Endpoints (Example)
+POST /api/register/ – Register a new user
+
+POST /api/token/ – Login to get JWT token
+
+GET /api/events/ – List all events
+
+POST /api/events/create/ – Create a new event (organizer only)
+
+📷 Screenshots
+Add screenshots here if available:
+
+Login page
+
+Registration form
+
+Event dashboard
+
+🤝 Contributing
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+📄 License
+This project is open source and available under the MIT License.
+
+👨‍💻 Author
+Vijay Gholve
+GitHub
+LinkedIn
+
