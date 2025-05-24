@@ -12,15 +12,19 @@ class Event(models.Model):
     is_public = models.BooleanField(default=True)
     banner_image = models.ImageField(upload_to='event_banners/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    is_blocked = models.BooleanField(default=False)  
     def __str__(self):
         return f"{self.title} by {self.organizer.username}"
+    def blocked(self):
+        self.is_blocked = True
+        self.save()
 
 class EventRegistration(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, )
+    event = models.ForeignKey(Event, on_delete=models.CASCADE,related_name='registrations') 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     registered_at = models.DateTimeField(auto_now_add=True)
     is_checked_in = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=False)  # Blocked registration
 
     def __str__(self):
         return f"{self.user.username} - {self.event.title}"

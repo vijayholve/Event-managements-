@@ -16,10 +16,11 @@ from rest_framework.decorators import api_view, permission_classes
 def user_info(request):
     user = request.user
     return Response({
+                    "id": user.id,
         "username": user.username,
         "email": user.email,
         "role": "admin" if user.is_staff else "user"
-    })
+    })  
 
 User = get_user_model()
 
@@ -42,8 +43,7 @@ class RegisterView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        print("Serializer errors:", serializer.errors)  # 👈 Debug line
-
+        print("Serializer errors:", serializer.errors)  
         user = serializer.save()
         return Response({
             "user": RegisterSerializer(user, context=self.get_serializer_context()).data,

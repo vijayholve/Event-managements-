@@ -20,7 +20,9 @@ class LoginSerializer(TokenObtainPairSerializer):
         # Add custom fields to response
         data['username'] = self.user.username
         data['email'] = self.user.email
-        data['role'] = self.user.role
+        data['role'] = self.user.role 
+        data['id'] = self.user.id 
+
         return data
 
 class RegisterSerializer(serializers.Serializer):

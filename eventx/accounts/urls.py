@@ -8,6 +8,6 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='auth_register'),
     path('login/', LoginView.as_view(), name='auth_login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-        path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-        path('/user-info/',user_info),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+        path('user-info/',user_info),
 ] 

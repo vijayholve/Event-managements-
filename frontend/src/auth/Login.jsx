@@ -24,12 +24,12 @@ const Login = () => {
       const response = await axios.post(API_ENDPOINTS.LOGIN, formData, {
         headers: { "Content-Type": "application/json" },
       });
-
       const data = response.data;
-
+      console.log(data)
       dispatch(
         loginSuccess({
           user: {
+            id: data.id,
             username: data.username,
             email: data.email,
             role: data.role,
@@ -40,7 +40,22 @@ const Login = () => {
           },
         })
       );
-
+      localStorage.setItem(
+        "tokens",
+        JSON.stringify({
+          access: response.data.access,
+          refresh: response.data.refresh,
+        })
+      );
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          user_id: data.id,
+          username: data.username,
+          email: data.email,
+          role: data.role,
+        })
+      );
       navigate("/home");
     } catch (err) {
       if (err.response && err.response.data && err.response.data.detail) {
@@ -54,8 +69,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center  bg-black">
-      <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl">
+    <div className="flex container-lg items-center justify-center  my-10">
+      <div className="w-full  max-w-sm bg-white p-8 rounded-xl shadow-2xl">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Sign In
         </h2>
@@ -110,16 +125,17 @@ const Login = () => {
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
           </button>
-          <h2 className="text-1xl font-bold text-center text-gray-800 mb-6">
+          <p className="text-sm text-center text-gray-600 mt-4">
             Already having a account?
             <Link
               to={{
                 pathname: "/register",
-                
               }}
-              className="text-grey"
-            >Register</Link>
-          </h2>
+              className="text-black font-semibold hover:underline"
+            >
+              Register
+            </Link>
+          </p>
         </form>
       </div>
     </div>

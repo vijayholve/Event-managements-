@@ -11,21 +11,22 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
+from decouple import config
+SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-ifhs)dq@r**%ug4g1ql0tt(2tw#i1j4w0b2aeq*%+!9zh=8vkq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,6 +39,8 @@ INSTALLED_APPS = [
     'vendors.apps.VendorsConfig',
     'users.apps.UsersConfig',
     'events.apps.EventsConfig',
+        'SiteConfig',
+
     'accounts',  # ✅ use this if you have standard structure
 ]
 # in settings.py
@@ -71,7 +74,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'eventx.wsgi.application'
+# WSGI_APPLICATION = 'eventx.wsgi.application'
 from os import getenv
 
 
@@ -81,15 +84,16 @@ from os import getenv
 
 
 DATABASES = {
-     'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'u368405264_eventx',
-        'USER': 'u368405264_services',
-        'PASSWORD': 'Vijay@77v',
-        'HOST': 'srv1875.hstgr.io',   
-        'PORT': '3306',  
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', default='3306'),
     }
 }
+
 
 
 INSTALLED_APPS += [
@@ -132,7 +136,10 @@ CORS_ALLOWED_ORIGINS =[
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+        'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 from datetime import timedelta
 
@@ -162,3 +169,11 @@ SIMPLE_JWT = {
 
     'JTI_CLAIM': 'jti',
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
