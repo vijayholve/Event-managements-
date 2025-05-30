@@ -1,158 +1,166 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  CalendarIcon,
-  MapPinIcon,
-  PhotoIcon,
-} from "@heroicons/react/24/outline";
-// import Loading "../../components/loading/Loading"
-import { API_ENDPOINTS, API_EVENT } from "../../features/base/config";
+import { CalendarIcon, PhotoIcon } from "@heroicons/react/24/outline";
+import { API_EVENT } from "../../features/base/config";
+import { useEventContext } from "../../context/EventContext";
+
 const UpdateEventForm = () => {
   const { id: eventId } = useParams();
   const navigate = useNavigate();
+  const { categories = [], cities = [], venues = [] } = useEventContext();
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     category: "",
+    city: "",
     venue: "",
     start_time: "",
     end_time: "",
     is_public: true,
     banner_image: null,
   });
-  const [Dataloading, setDataLoading] = useState(false);
-
-  const [wantsToUpdateImage, setWantsToUpdateImage] = useState(false);
-  const [wantsToUpdateDate, setWantsToUpdateDate] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  // Fetch event details to prefill the form
-  const fetchEventDetails = async () => {
-    try {
-      setDataLoading(true);
-      const tokens = JSON.parse(localStorage.getItem("tokens"));
-      const token = tokens?.access;
-
-      const response = await axios.get(`${API_EVENT.GET_EVENTS}${eventId}`, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-      });
-
-      const event = response.data.data;
-
-      setFormData({
-        title: event.title || "",
-        description: event.description || "",
-        category: event.category || "",
-        venue: event.venue || "",
-        start_time: event.start_time || "",
-        end_time: event.end_time || "",
-        is_public: event.is_public ?? true,
-        banner_image: null, // File input cannot be prefilled
-      });
-      setDataLoading(false);
-    } catch (error) {
-      console.error(error);
-
-      setErrorMessage("❌ Failed to fetch event details.");
-      setDataLoading(false);
-    }
-  };
-
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [wantsToUpdateImage, setWantsToUpdateImage] = useState(false);
+  const [wantsToUpdateDate, setWantsToUpdateDate] = useState(false);
   useEffect(() => {
-    fetchEventDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const fetchEvent = async () => {
+      try {
+        const tokens = JSON.parse(localStorage.getItem("tokens"));
+        const token = tokens?.access;
 
-  // Handle all form input changes
+        const res = await axios.get(`${API_EVENT.GET_EVENTS}${eventId}`, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        });
+
+        const data = res.data.data;
+
+        const matchedCity = venues.find((v) => v.id === data.venue)?.city;
+        const cityObj = cities.find((c) => c.name === matchedCity);
+
+        setFormData({
+          title: data.title || "",
+          description: data.description || "",
+          category: data.category || "",
+          venue: data.venue || "",
+          city: cityObj ? cityObj.id.toString() : "",
+          start_time: data.start_time || "",
+          end_time: data.end_time || "",
+          is_public: data.is_public ?? true,
+          banner_image: null,
+        });
+      } catch (err) {
+        setErrorMsg("❌ Failed to load event details.");
+      }
+    };
+
+    fetchEvent();
+  }, [eventId, cities, venues]);
+
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-
     if (type === "file") {
-      setFormData((prev) => ({ ...prev, [name]: files[0] }));
+      setFormData({ ...formData, [name]: files[0] });
+      setWantsToUpdateImage(true);
     } else if (type === "checkbox") {
-      setFormData((prev) => ({ ...prev, [name]: checked }));
+      setFormData({ ...formData, [name]: checked });
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData({ ...formData, [name]: value });
     }
   };
 
-  // Handle form submission to update event
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
-    setSuccessMessage("");
-    setErrorMessage("");
+    setErrorMsg("");
+    setSuccessMsg("");
+
+    const data = new FormData();
+
+    for (const key in formData) {
+      // Skip banner_image if not updating image
+      if (key === "banner_image" && !wantsToUpdateImage) continue;
+
+      // Skip date/time if not updating
+      if ((key === "start_time" || key === "end_time") && !wantsToUpdateDate)
+        continue;
+
+      if (formData[key] !== null && formData[key] !== "") {
+        data.append(key, formData[key]);
+      }
+    }
 
     try {
       const tokens = JSON.parse(localStorage.getItem("tokens"));
       const token = tokens?.access;
 
-      const data = new FormData();
-
-      // Append all form fields except banner_image if user doesn't want to update it
-      for (const key in formData) {
-        if (key === "banner_image" && !wantsToUpdateImage) continue;
-        if (formData[key] !== null && formData[key] !== undefined) {
-          data.append(key, formData[key]);
-        }
-      }
-
-      const response = await axios.patch(
+      const res = await axios.patch(
         `${API_EVENT.GET_EVENTS}${eventId}/`,
         data,
         {
           headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
-            Authorization: token ? `Bearer ${token}` : "",
           },
         }
       );
 
-      if (response.status === 200 || response.status === 202) {
-        setSuccessMessage("✅ Event updated successfully!");
-        setTimeout(() => navigate("/dashboard"), 1500);
+      if (res.status === 200) {
+        setSuccessMsg("✅ Event updated successfully.");
+        navigate("/eventpanel");
       } else {
         throw new Error("Unexpected response from server");
       }
     } catch (error) {
-      setErrorMessage(
-        "❌ Failed to update event. Please try again. " + error.message
-      );
-      console.error(error);
+      console.error("Error updating event:", error);
+
+      if (error.response && error.response.data?.errors) {
+        const errors = error.response.data.errors;
+        const errorMessages = [];
+
+        for (const field in errors) {
+          if (Array.isArray(errors[field])) {
+            errorMessages.push(`${field}: ${errors[field][0]}`);
+          }
+        }
+
+        // Show all error messages joined with line breaks or commas
+        setErrorMsg("❌ " + errorMessages.join("\n"));
+      }
     } finally {
       setLoading(false);
     }
   };
-  // if (Dataloading) {
-  //   return <Loading />;
-  // };
+
+  const filteredVenues = formData.city
+    ? venues.filter(
+        (v) =>
+          v.city === cities.find((c) => c.id.toString() === formData.city)?.name
+      )
+    : [];
+
   return (
     <div className="max-w-3xl mx-auto p-8 mt-8 bg-gradient-to-br from-white to-blue-50 shadow-lg rounded-2xl">
       <h2 className="text-3xl font-bold text-blue-800 mb-6 text-center">
         ✏️ Update Event
       </h2>
 
-      {successMessage && (
-        <p className="text-green-600 text-center mb-4">{successMessage}</p>
+      {successMsg && (
+        <p className="text-green-600 text-center mb-4">{successMsg}</p>
       )}
-      {errorMessage && (
-        <p className="text-red-600 text-center mb-4">{errorMessage}</p>
-      )}
+      {errorMsg && <p className="text-red-600 text-center mb-4">{errorMsg}</p>}
 
       <form
         onSubmit={handleSubmit}
         encType="multipart/form-data"
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
-        {/* Event Title */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Event Title
@@ -162,68 +170,98 @@ const UpdateEventForm = () => {
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
             required
-          />
-        </div>
-
-        {/* Category */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Category
-          </label>
-          <input
-            type="text"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
             className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
           />
         </div>
 
-        {/* Description */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700">
             Description
           </label>
           <textarea
             name="description"
-            rows="4"
             value={formData.description}
             onChange={handleChange}
-            className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
+            rows={4}
             required
+            className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
           />
         </div>
 
-        {/* Venue */}
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 flex items-center gap-1">
-            <MapPinIcon className="w-4 h-4" /> Venue
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Category
           </label>
-          <input
-            type="text"
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+            className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
+          >
+            <option value="">-- Select Category --</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            City
+          </label>
+          <select
+            name="city"
+            value={formData.city}
+            onChange={handleChange}
+            required
+            className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
+          >
+            <option value="">-- Select City --</option>
+            {cities.map((city) => (
+              <option key={city.id} value={city.id}>
+                {city.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Venue
+          </label>
+          <select
             name="venue"
             value={formData.venue}
             onChange={handleChange}
-            className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
             required
-          />
+            className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
+          >
+            <option value="">-- Select Venue --</option>
+            {filteredVenues.map((venue) => (
+              <option key={venue.id} value={venue.id}>
+                {venue.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Start Time */}
-        <div className="flex flex-col md:col-span-2 mt-6">
-          <label className="inline-flex items-center">
+        <div className="md:col-span-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <input
               type="checkbox"
-              name="update_date"
               checked={wantsToUpdateDate}
-              onChange={() => setWantsToUpdateDate((prev) => !prev)}
-              className="mr-2"
+              onChange={() => setWantsToUpdateDate(!wantsToUpdateDate)}
             />
-            <span>Update Banner Date</span>
+            Update Event Date & Time
           </label>
-          {wantsToUpdateDate && (
+        </div>
+
+        {wantsToUpdateDate && (
+          <>
             <div>
               <label className="block text-sm font-medium text-gray-700 flex items-center gap-1">
                 <CalendarIcon className="w-4 h-4" /> Start Time
@@ -233,52 +271,52 @@ const UpdateEventForm = () => {
                 name="start_time"
                 value={formData.start_time}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
                 required
+                className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
               />
             </div>
-          )}
-        </div>
-        {wantsToUpdateDate && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              End Time
-            </label>
-            <input
-              type="datetime-local"
-              name="end_time"
-              value={formData.end_time}
-              onChange={handleChange}
-              className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
-              required
-            />
-          </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                End Time
+              </label>
+              <input
+                type="datetime-local"
+                name="end_time"
+                value={formData.end_time}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
+              />
+            </div>
+          </>
         )}
-        <div className="flex flex-col md:col-span-2 mt-6">
-          <label className="inline-flex items-center">
+        <div className="md:col-span-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <input
               type="checkbox"
-              name="update_image"
               checked={wantsToUpdateImage}
-              onChange={() => setWantsToUpdateImage((prev) => !prev)}
-              className="mr-2"
+              onChange={() => setWantsToUpdateImage(!wantsToUpdateImage)}
             />
-            <span>Update Banner Image</span>
+            Update Event Image
           </label>
+        </div>
 
-          {wantsToUpdateImage && (
+        {wantsToUpdateImage && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 flex items-center gap-1">
+              <PhotoIcon className="w-4 h-4" /> Change Banner
+            </label>
             <input
               type="file"
               name="banner_image"
+              accept="image/*"
               onChange={handleChange}
-              className="mt-2 rounded-md border-gray-300 shadow-sm"
-              required
+              className="mt-1 w-full"
             />
-          )}
-        </div>
-
-        {/* Public event checkbox */}
-        <div className="flex items-center md:col-span-2 mt-6">
+          </div>
+        )}
+        <div className="flex items-center mt-6">
           <input
             type="checkbox"
             name="is_public"
@@ -289,12 +327,11 @@ const UpdateEventForm = () => {
           <label className="text-sm text-gray-700">Make event public</label>
         </div>
 
-        {/* Submit button */}
-        <div className="md:col-span-2 text-center mt-6">
+        <div className="md:col-span-2 text-center">
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow-md transition-all disabled:opacity-50"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow-md transition-all"
           >
             {loading ? "Updating..." : "Update Event"}
           </button>

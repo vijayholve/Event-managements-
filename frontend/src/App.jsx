@@ -22,6 +22,12 @@ import EventRegisterPanel from "./pages/panel/EventRegisterPanel";
 import CreateUserForm from "./pages/user/CreateUser";
 import UserProfile from "./pages/user/UserProfile";
 import UpdateUserForm from "./pages/user/UpdateUserForm";
+import CreateCity from "./pages/city/CreateCity";
+import CityPanel from "./pages/panel/CityPanel";
+import UpdateCity from "./pages/city/UpdareCity";
+import CategoryPanel from "./pages/panel/categoryPanel";
+import CreateCategory from "./pages/category/CreateCategory";
+import UpdateCategory from "./pages/category/UpdareCategory";
 
 function App() {
   const dispatch = useDispatch();
@@ -160,7 +166,60 @@ function App() {
             </PrivateRoute>
           }
         />
-
+        <Route
+          path="/citypanel"
+          element={
+            <PrivateRoute>
+              <Sidebar>
+                <CityPanel />
+              </Sidebar>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/city/create"
+          element={
+            <PrivateRoute>
+              <CreateCity />
+            </PrivateRoute>
+          }
+        />
+        
+        <Route
+          path="/city/edit/:id"
+          element={
+            <PrivateRoute>
+              <UpdateCity />
+            </PrivateRoute>
+          }
+        />
+          <Route
+          path="/categorypanel"
+          element={
+            <PrivateRoute>
+              <Sidebar>
+                <CategoryPanel />
+              </Sidebar>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/category/create"
+          element={
+            <PrivateRoute>
+              <CreateCategory />
+            </PrivateRoute>
+          }
+        />
+        
+        <Route
+          path="/category/edit/:id"
+          element={
+            <PrivateRoute>
+              <UpdateCategory />
+            </PrivateRoute>
+          }
+        />
         {/* Root Redirect */}
         <Route
           path="/setting"

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event, EventRegistration
+from .models import Event, EventRegistration ,City,Category ,Venue
 from users.models import User
 
 class EventSerializer(serializers.ModelSerializer):
@@ -12,14 +12,28 @@ class EventSerializer(serializers.ModelSerializer):
         }
 
 
-    def create(self,validate_data):
+    def create(self, validated_data):  # ✅ 'validated_data' not 'validate_data'
         request = self.context.get('request')
+        
         user = request.user if request else None
         if user and user.is_authenticated:
-            return Event.objects.create(organizer=user, **validate_data)
+            event = Event.objects.create(organizer=user, **validated_data)
+            print("Event created with ID:", event.id)
+            return event
         raise serializers.ValidationError("User not authenticated.")
     
-
+class CitySerailizer(serializers.ModelSerializer):
+    class  Meta:
+        model= City
+        fields= ['name','id']       
+    def create(self, validated_data):  # ✅ 'validated_data' not 'validate_data'
+        return City.objects.create(**validated_data) 
+class CategorySerailizer(serializers.ModelSerializer):
+     class Meta:
+        model =Category
+        fields= ['name','id']       
+    
+        
 class EventRegistrationSerializer(serializers.ModelSerializer):
     event = serializers.PrimaryKeyRelatedField(queryset=Event.objects.all())  # ✅ Fix here
     user = serializers.StringRelatedField(read_only=True)

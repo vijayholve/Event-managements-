@@ -9,7 +9,7 @@ const Nav_link = ({ title, link = "#", icon }) => {
       className={({ isActive }) =>
         `flex items-center px-4 py-2 rounded-lg transition-colors duration-200 ${
           isActive
-            ? "bg-indigo-100 text-indigo-700"
+            ? "bg-indigo-100 teCD`xt-indigo-700"
             : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
         }`
       }

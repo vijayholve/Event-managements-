@@ -5,6 +5,7 @@ import axios from "axios";
 import isTokenExpired from "../auth/TokenManagement/isTokenExpired";
 import refreshAccessToken from "../auth/TokenManagement/refreshAccessToken";
 import { API_EVENTREGISTER } from "../features/base/config";
+import { getValidAccessToken } from "../auth/AccessToken";
 
 // Create context
 export const EventregisterContext = createContext();
@@ -18,19 +19,9 @@ export const EventregisterProvider = ({ children }) => {
   useEffect(() => {
     const fetchEventregisters = async () => {
       try {
-        const tokens = JSON.parse(localStorage.getItem("tokens"));
-        let access = tokens?.access;
 
-        if (!access || isTokenExpired(access)) {
-          console.log("Access token expired, trying to refresh...");
-          access = await refreshAccessToken();
-        }
+        const access = await getValidAccessToken(navigate);
 
-        if (!access) {
-          console.log("User needs to login again.");
-          navigate("/login");
-          return;
-        }
 
         const response = await axios.get(API_EVENTREGISTER.VIEW_EVENTREGISTERS, {
           headers: {

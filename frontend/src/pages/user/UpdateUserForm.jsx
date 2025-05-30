@@ -95,7 +95,7 @@ const [formData, setFormData] = useState({
 
       if (response.status === 200 || response.status === 202) {
         setSuccessMessage("✅ User updated successfully!");
-        setTimeout(() => navigate("/dashboard"), 1500);
+        setTimeout(() => navigate("/userpanel"), 1500);
       } else {
         throw new Error("Unexpected server response");
       }

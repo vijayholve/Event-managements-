@@ -70,6 +70,8 @@ const UserList = () => {
               <th className="py-3 px-4 border-b">id</th>
 
               <th className="py-3 px-4 border-b">Username</th>
+                            <th className="py-3 px-4 border-b">Profile</th>
+
               <th className="py-3 px-4 border-b">Email</th>
               <th className="py-3 px-4 border-b">Role</th>
               <th className="py-3 px-4 border-b">User Type</th>

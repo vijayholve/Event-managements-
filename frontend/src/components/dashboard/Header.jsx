@@ -6,6 +6,7 @@ const Header = ({
   subtitle = "",
   link = "/",
   icon = "bi bi-house-door",
+  link_text = "Go Back",
 }) => {
   return (
     <header className=" top-0 z-40 bg-white shadow-sm border-b px-4 md:px-8 py-3">
@@ -30,7 +31,7 @@ const Header = ({
             // className="inline-flex items-center gap-2 text-sm font-medium bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-all "
           >
             <i className="bi bi-arrow-left" />
-            Click
+            {link_text}
           </Link>
         </div>
       </div>

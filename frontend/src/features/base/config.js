@@ -10,12 +10,18 @@ export const API_ENDPOINTS = {
   LOGIN: `${BASE_URL}/auth/login/`,
   USER_AUTH: `${BASE_URL}/auth/user/`,
   user_info: `${BASE_URL}/user-info/`,
+ DASHBOARD_USER: `${BASE_URL}/dashboard/user/`,
+ DASHBOARD_EVENT: `${BASE_URL}/dashboard/event/`
 
   // Add more endpoints as needed'http://localhost:8000/api/auth/user/
 };
 export const API_EVENT = {
   BASE_URL: `${BASE_URL}/events/`,
   GET_EVENTS: `${BASE_URL}/events/events-view/`,
+  MODEL_INFO: `${BASE_URL}/events/event-model-info/`,
+  CITY_VIEW:  `${BASE_URL}/events/city-view/`,
+    CATEGORY_VIEW:  `${BASE_URL}/events/category-view/`,
+
 };
 export const API_EVENTREGISTER = {
   BASE_URL: `${BASE_URL}/events`,

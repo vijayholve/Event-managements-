@@ -4,8 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../../features/auth/authSlice";
 import "../../css/base/Home.css";
+import Navbar from "../../components/navbar/Navbar";
 import Cards from "../../components/card/Cards";
-
 const Home = () => {
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
@@ -17,7 +17,8 @@ const Home = () => {
   };
 
   return (
-    <div className="container-lg bg-black">
+    <div className="">
+      <Navbar />
       <div className="user-details">
         <h2>Welcome,  {user.id}:{user?.username}!</h2>
         <Link to={{

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Event ,EventRegistration
+from .models import Event ,EventRegistration ,Venue,City,Category
 
-admin.site.register(EventRegistration)
-admin.site.register(Event)
+data =[Event, EventRegistration, Venue, City, Category]
+for model in data:
+    admin.site.register(model)

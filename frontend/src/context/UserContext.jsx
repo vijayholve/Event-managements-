@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import isTokenExpired from "../auth/TokenManagement/isTokenExpired";
 import refreshAccessToken from "../auth/TokenManagement/refreshAccessToken";
-import { API_USER } from "../features/base/config";
+import { API_ENDPOINTS, API_USER } from "../features/base/config";
 
 // Create context
 export const UserContext = createContext();
@@ -12,6 +12,8 @@ export const UserContext = createContext();
 // Provider
 export const UserProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
+    const [usersCount, setusersCount] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -38,7 +40,15 @@ export const UserProvider = ({ children }) => {
           },
         });
 
+
         setUsers(response.data.data);
+        const response_count = await axios.get(API_ENDPOINTS.DASHBOARD_USER, {
+          headers: {
+            Authorization: `Bearer ${access}`,
+          },
+        });
+        setusersCount(response_count.data);
+        console.log("Fetched users count:", response_count.data);
         console.log("Fetched users:", response.data.data);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -51,7 +61,7 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ users, setUsers, loading, setLoading }}>
+    <UserContext.Provider value={{usersCount,setusersCount, users, setUsers, loading, setLoading }}>
       {children}
     </UserContext.Provider>
   );

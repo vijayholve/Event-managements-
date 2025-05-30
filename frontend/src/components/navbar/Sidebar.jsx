@@ -37,24 +37,29 @@ export default function Sidebar({ children }) {
               link="/dashboard"
               icon="bi-speedometer2"
             />
-            
+
             <Nav_link title="Home" link="/" icon="bi-house" />
-            <Nav_link title="Events" link="/eventpanel" icon="bi-calendar-event" />
+            <Nav_link
+              title="Events"
+              link="/eventpanel"
+              icon="bi-calendar-event"
+            />
             <Nav_link title="Userpanel" link="/userpanel" icon="bi-chat-dots" />
-            <Nav_link title="Event Registerpanel" link="/eventregisterpanel" icon="bi-people" />
+            <Nav_link
+              title="Event Registerpanel"
+              link="/eventregisterpanel"
+              icon="bi-people"
+            />
+            <Nav_link title=" City" link="/citypanel" icon="bi-people" />
+            <Nav_link title=" Category" link="/categorypanel" icon="bi-people" />
           </nav>
 
           {/* Profile & Logout */}
           <div className="px-4 py-6 border-t">
             <div className="flex items-center space-x-3">
-              
               <div>
                 <p className="font-medium text-gray-700">{username}</p>
-                <Nav_link
-                  title="Setting"
-                  link="/setting"
-                  icon="bi-chat-dots"
-                />
+                <Nav_link title="Setting" link="/setting" icon="bi-chat-dots" />
               </div>
             </div>
             <button
