@@ -5,6 +5,7 @@ import axios from "axios";
 import isTokenExpired from "../auth/TokenManagement/isTokenExpired";
 import refreshAccessToken from "../auth/TokenManagement/refreshAccessToken";
 import { API_ENDPOINTS, API_USER } from "../features/base/config";
+import { getValidAccessToken } from "../auth/AccessToken";
 
 // Create context
 export const UserContext = createContext();
@@ -20,19 +21,8 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const tokens = JSON.parse(localStorage.getItem("tokens"));
-        let access = tokens?.access;
+              const access = await getValidAccessToken(navigate);
 
-        if (!access || isTokenExpired(access)) {
-          console.log("Access token expired, trying to refresh...");
-          access = await refreshAccessToken();
-        }
-
-        if (!access) {
-          console.log("User needs to login again.");
-          navigate("/login");
-          return;
-        }
 
         const response = await axios.get(API_USER.VIEW_USERS, {
           headers: {

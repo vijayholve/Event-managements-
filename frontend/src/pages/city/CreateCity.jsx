@@ -2,12 +2,15 @@ import axios from "axios";
 import React, { useState } from "react";
 import { API_EVENT } from "../../features/base/config";
 import { useNavigate } from "react-router-dom";
+import { getValidAccessToken } from "../../auth/AccessToken";
+import { useEventContext } from "../../context/EventContext";
 
 const CreateCity = () => {
   const [formData, setFormData] = useState({ name: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState([]);
+  const { cities, setCities } = useEventContext();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,8 +23,7 @@ const CreateCity = () => {
     setLoading(true);
 
     try {
-      const tokens = JSON.parse(localStorage.getItem("tokens"));
-      const token = tokens?.access;
+      const token = await getValidAccessToken(navigate);
 
       const response = await axios.post(API_EVENT.CITY_VIEW, formData, {
         headers: {
@@ -29,7 +31,8 @@ const CreateCity = () => {
           Authorization: token ? `Bearer ${token}` : "",
         },
       });
-
+      const newcitie = response.data.data;
+      setCities((prevcities) => [newcitie, ...prevcities])
       console.log("City created:", response.data);
       navigate("/citypanel");
     } catch (error) {

@@ -9,6 +9,7 @@ import { API_EVENT } from "../../features/base/config";
 import { useNavigate } from "react-router-dom";
 import { useEventContext } from "../../context/EventContext";
 import { compose } from "@reduxjs/toolkit";
+import { getValidAccessToken } from "../../auth/AccessToken";
 
 const CreateEventForm = () => {
   const navigate = useNavigate();
@@ -23,9 +24,9 @@ const CreateEventForm = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "",
-    city: "",
-    venue: "",
+    category_id: "",
+    city_id: "",
+    venue_id: "",
     start_time: "",
     end_time: "",
     is_public: true,
@@ -61,13 +62,12 @@ const CreateEventForm = () => {
     }
 
     try {
-      const tokens = JSON.parse(localStorage.getItem("tokens"));
-      const token = tokens?.access;
+      const access = await getValidAccessToken(navigate);
 
       const response = await axios.post(API_EVENT.GET_EVENTS, data, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: token ? `Bearer ${token}` : "",
+          Authorization: access ? `Bearer ${access}` : "",
         },
       });
 
@@ -76,26 +76,29 @@ const CreateEventForm = () => {
         setFormData({
           title: "",
           description: "",
-          category: "",
-          city: "",
-          venue: "",
+          // category: "",
+          // city: "",
+          // venue: "",
+          category_id: "",
+          city_id: "",
+          venue_id: "",
           start_time: "",
           end_time: "",
           is_public: true,
           banner_image: null,
         });
         const newEvent = response.data.data;
-        setEvents([newEvent, ...events]); // Add new event to the beginning
-        console.log("newEvent",newEvent)
-                console.log("all Events",events)
+        setEvents((prevEvents) => [newEvent, ...prevEvents]);
+        console.log("newEvent", newEvent);
+        console.log("all Events", events);
 
         navigate("/eventpanel");
       } else {
         throw new Error("Unexpected response from server");
       }
     } catch (error) {
-        const errors = error.response.data.errors;
-        console.log(errors)
+      const errors = error.response.data.errors;
+      console.log(errors);
       setErrorMsg("❌ Failed to create event. Please try again. " + error);
     } finally {
       setLoading(false);
@@ -103,10 +106,11 @@ const CreateEventForm = () => {
   };
 
   // Filter venues based on selected city
-  const filteredVenues = formData.city
+  const filteredVenues = formData.city_id
     ? venues.filter(
         (v) =>
-          v.city === cities.find((c) => c.id.toString() === formData.city)?.name
+          v.city ===
+          cities.find((c) => c.id.toString() === formData.city_id)?.name
       )
     : [];
 
@@ -158,7 +162,7 @@ const CreateEventForm = () => {
             Category
           </label>
           <select
-            name="category"
+            name="category_id"
             value={formData.category}
             onChange={handleChange}
             className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
@@ -178,7 +182,7 @@ const CreateEventForm = () => {
             City
           </label>
           <select
-            name="city"
+            name="city_id"
             value={formData.city}
             onChange={handleChange}
             className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
@@ -198,7 +202,7 @@ const CreateEventForm = () => {
             Venue
           </label>
           <select
-            name="venue"
+            name="venue_id"
             value={formData.venue}
             onChange={handleChange}
             className="mt-1 w-full rounded-md border-gray-300 shadow-sm"

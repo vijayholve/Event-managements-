@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { API_EVENT } from "../../features/base/config";
 import { useNavigate, useParams } from "react-router-dom";
+import { getValidAccessToken } from "../../auth/AccessToken";
 
 const UpdateCity = () => {
   const [formData, setFormData] = useState({ name: "" });
@@ -45,9 +46,8 @@ const UpdateCity = () => {
     setLoading(true);
 
     try {
-      const tokens = JSON.parse(localStorage.getItem("tokens"));
-      const token = tokens?.access;
-
+            const token = await getValidAccessToken(navigate);
+      
       const response = axios.patch(
         `${API_EVENT.CITY_VIEW}${cityId}/`,
         formData,

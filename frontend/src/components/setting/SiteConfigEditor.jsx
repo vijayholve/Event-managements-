@@ -27,23 +27,15 @@ const SiteConfigEditor = () => {
   const [successMessage, setsuccessMessage] = useState("");
   const [openMessage, setOpenMessage] = useState(false);
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setError(null); // Clear error when user starts editing
-  };
+  const { name, value, type, checked } = e.target;
+  setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
+  setError(null);
+};
   const handleCloseMessage = () => {
     setOpenMessage(false);
   };
 
-  const handleFileChange = (e) => {
-    const { name } = e.target;
-    const file = e.target.files[0];
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: file,
-    }));
-  };
 
   // console.log(formData.navbar_image);
 
@@ -90,9 +82,9 @@ const SiteConfigEditor = () => {
     }
   };
 
-  // if (siteConfigData.navbar_title=="") {
-  //   return <PageLoader reason={"setting detail"} />
-  // }
+if (!siteConfigData || Object.keys(siteConfigData).length === 0) {
+  return <PageLoader reason="setting detail" />;
+}
 
   return (
     <Box sx={{ p: 3, maxWidth: "600px", mx: "auto" }}>
@@ -108,7 +100,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Navbar Title"
             name="navbar_title"
-            value={formData.navbar_title}
+            value={formData.navbar_title || ""}
             onChange={handleChange}
           />
         </Box>
@@ -118,7 +110,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Header Name"
             name="headers_name"
-            value={formData.headers_name}
+            value={formData.headers_name || ""}
             onChange={handleChange}
           />
         </Box>
@@ -128,7 +120,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Footer Text"
             name="footer_text"
-            value={formData.footer_text}
+            value={formData.footer_text || ""}
             onChange={handleChange}
             multiline
             rows={3}
@@ -139,7 +131,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Contact Email"
             name="contact_email"
-            value={formData.contact_email || ""}
+            value={formData.contact_email || "" || ""}
             onChange={handleChange}
           />
         </Box>
@@ -151,7 +143,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Primary Color"
             name="primary_color"
-            value={formData.primary_color}
+            value={formData.primary_color || ""}
             onChange={handleChange}
           />
         </Box>
@@ -161,7 +153,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Secondary Color"
             name="secondary_color"
-            value={formData.secondary_color}
+            value={formData.secondary_color || ""}
             onChange={handleChange}
           />
         </Box>
@@ -171,7 +163,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Meta Title"
             name="meta_title"
-            value={formData.meta_title}
+            value={formData.meta_title || ""}
             onChange={handleChange}
           />
         </Box>
@@ -181,7 +173,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Meta Description"
             name="meta_description"
-            value={formData.meta_description}
+            value={formData.meta_description || ""}
             onChange={handleChange}
           />
         </Box>
@@ -191,7 +183,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Meta Keywords"
             name="meta_keywords"
-            value={formData.meta_keywords}
+            value={formData.meta_keywords || ""}
             onChange={handleChange}
           />
         </Box>
@@ -201,7 +193,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="About Text"
             name="about_text"
-            value={formData.about_text}
+            value={formData.about_text || ""}
             onChange={handleChange}
             multiline
             rows={4}
@@ -213,7 +205,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Phone Number"
             name="phone_number"
-            value={formData.phone_number}
+            value={formData.phone_number || ""}
             onChange={handleChange}
           />
         </Box>
@@ -223,7 +215,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Address"
             name="address"
-            value={formData.address}
+            value={formData.address || ""}
             onChange={handleChange}
             multiline
             rows={3}
@@ -235,7 +227,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Default Language"
             name="default_language"
-            value={formData.default_language}
+            value={formData.default_language || ""}
             onChange={handleChange}
           />
         </Box>
@@ -244,7 +236,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="social_links "
             name="social_links"
-            value={formData.social_links}
+            value={formData.social_links || ""}
             onChange={handleChange}
           />
         </Box>
@@ -253,7 +245,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Privacy Policy"
             name="privacy_policy"
-            value={formData.privacy_policy}
+            value={formData.privacy_policy || ""}
             onChange={handleChange}
             multiline
             rows={5}
@@ -265,7 +257,7 @@ const SiteConfigEditor = () => {
             fullWidth
             label="Terms and Conditions"
             name="terms_and_conditions"
-            value={formData.terms_and_conditions}
+            value={formData.terms_and_conditions || ""}
             onChange={handleChange}
             multiline
             rows={5}

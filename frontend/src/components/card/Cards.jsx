@@ -4,11 +4,12 @@ import { API_ENDPOINTS, API_EVENT } from "../../features/base/config";
 import { Navigate, NavLink } from "react-router-dom";
 import isTokenExpired from "../../auth/TokenManagement/isTokenExpired";
 import refreshAccessToken from "../../auth/TokenManagement/refreshAccessToken";
-import {  useEventContext } from "../../context/EventContext";
+import { useEventContext } from "../../context/EventContext";
 // 1. Helper: Check if token is expired
 import Loading from "../loading/Loading";
+import NoEventsFound from "../notFound/NotEventFound";
 
-refreshAccessToken
+refreshAccessToken;
 const Cards = () => {
   // const [events, setEvents] = useState([]);
   const { filteredEvents, loading } = useEventContext();
@@ -17,11 +18,17 @@ const Cards = () => {
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
       {loading ? (
-        <Loading/>
+        <Loading />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {filteredEvents.length === 0 && (
+            <div className="col-span-1 sm:col-span-2 md:col-span-3 text-center text-gray-500">
+              {filteredEvents.length === 0 && <NoEventsFound />}{" "}
+            </div>
+          )}
           {filteredEvents.map((event) => (
-            <NavLink to={`/events/${event.id}`}
+            <NavLink
+              to={`/events/${event.id}`}
               key={event.id}
               className={`bg-white p-6 rounded-2xl shadow-md transition-shadow duration-300 border relative 
             ${
@@ -50,10 +57,11 @@ const Cards = () => {
               <div className="text-sm text-gray-600 space-y-1">
                 <p>
                   <span className="font-medium">Category:</span>{" "}
-                  {event.category || "N/A"}
+                  {event.category?.name || "N/A"}{" "}
                 </p>
                 <p>
-                  <span className="font-medium">Venue:</span> {event.venue}
+                  <span className="font-medium">Venue:</span>{" "}
+                  {event.venue?.city?.name || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Start:</span>{" "}

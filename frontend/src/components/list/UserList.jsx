@@ -7,6 +7,7 @@ import isTokenExpired from "../../auth/TokenManagement/isTokenExpired";
 import refreshAccessToken from "../../auth/TokenManagement/refreshAccessToken";
 import axios from "axios";
 import PageLoader from "../loading/PageLoader";
+import { getValidAccessToken } from "../../auth/AccessToken";
 
 const UserList = () => {
   const { users, loading ,setUsers } = useUserContext();
@@ -25,20 +26,7 @@ const UserList = () => {
     console.log("Delete:", userId);
     try {
       setDeleteLoading(true);
-      const tokens = JSON.parse(localStorage.getItem("tokens"));
-      let access = tokens?.access;
-
-      if (!access || isTokenExpired(access)) {
-        console.log("Access token expired, trying to refresh...");
-        access = await refreshAccessToken();
-      }
-
-      if (!access) {
-        console.log("User needs to login again.");
-        navigate("/login");
-        return;
-      }
-
+      const access = await getValidAccessToken(navigate);
       const response = await axios.delete(`${API_USER.VIEW_USERS}${userId}/`, {
         headers: {
           Authorization: `Bearer ${access}`,

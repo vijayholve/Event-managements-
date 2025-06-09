@@ -20,6 +20,8 @@ export const API_EVENT = {
   GET_EVENTS: `${BASE_URL}/events/events-view/`,
   MODEL_INFO: `${BASE_URL}/events/event-model-info/`,
   CITY_VIEW:  `${BASE_URL}/events/city-view/`,
+    VENUE_VIEW:  `${BASE_URL}/events/venue-view/`,
+
     CATEGORY_VIEW:  `${BASE_URL}/events/category-view/`,
 
 };

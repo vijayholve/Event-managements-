@@ -5,6 +5,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { API_ENDPOINTS, API_EVENT } from "../../features/base/config";
 import axios from "axios";
 import PageLoader from "../loading/PageLoader";
+import { getValidAccessToken } from "../../auth/AccessToken";
 
 const CategoryList = () => {
   const { categories, loading, setCategories } = useEventContext();
@@ -14,14 +15,7 @@ const CategoryList = () => {
   const handleDelete = async (categoryId) => {
     try {
       setDeleteLoading(true);
-      const tokens = JSON.parse(localStorage.getItem("tokens"));
-      let access = tokens?.access;
-
-      if (!access) {
-        console.log("User needs to login again.");
-        navigate("/login");
-        return;
-      }
+            const access = await getValidAccessToken(navigate);
 
       await axios.delete(`${API_EVENT.CATEGORY_VIEW}${categoryId}/`, {
         headers: {

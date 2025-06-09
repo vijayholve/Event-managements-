@@ -2,12 +2,15 @@ import axios from "axios";
 import React, { useState } from "react";
 import { API_EVENT } from "../../features/base/config";
 import { useNavigate } from "react-router-dom";
+import { getValidAccessToken } from "../../auth/AccessToken";
+import { useEventContext } from "../../context/EventContext";
 
 const CreateCategory = () => {
   const [formData, setFormData] = useState({ name: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState([]);
+  const {  setCategories } = useEventContext();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,8 +23,7 @@ const CreateCategory = () => {
     setLoading(true);
 
     try {
-      const tokens = JSON.parse(localStorage.getItem("tokens"));
-      const token = tokens?.access;
+      const token = await getValidAccessToken(navigate);
 
       const response = await axios.post(API_EVENT.CATEGORY_VIEW, formData, {
         headers: {
@@ -29,7 +31,8 @@ const CreateCategory = () => {
           Authorization: token ? `Bearer ${token}` : "",
         },
       });
-
+ const newcategory = response.data.data;
+      setCategories((prevcategorys) => [newcategory, ...prevcategorys])
       console.log("Category created:", response.data);
       navigate("/categorypanel");
     } catch (error) {

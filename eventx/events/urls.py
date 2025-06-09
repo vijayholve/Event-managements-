@@ -12,4 +12,6 @@ urlpatterns = [
         path('city-view/<int:pk>/',views.CityView.as_view(),name="city-view"),
          path('category-view/',views.CategoryView.as_view(),name="category-view"),
         path('category-view/<int:pk>/',views.CategoryView.as_view(),name="category-view"),
+         path('venue-view/',views.VenueView.as_view(),name="venue-view"),
+        path('venue-view/<int:pk>/',views.VenueView.as_view(),name="venue-view"),
 ]

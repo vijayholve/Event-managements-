@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import EventRegistration, Event ,Venue ,City ,Category
-from .serializers import EventRegistrationSerializer, EventSerializer ,CitySerailizer,CategorySerailizer
+from .serializers import EventRegistrationSerializer, EventSerializer ,CitySerailizer,CategorySerailizer,VenueSerailizer 
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication,BasicAuthentication
@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 class EventView(APIView):
     authentication_classes = [JWTAuthentication]
     authentication_classes += [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     # permission_classes = [IsAuthenticated]  # or JWTAuthentication
     def get(self, request,pk=None):
@@ -295,6 +295,73 @@ class CategoryView(APIView):
         })
 
 
+class VenueView(APIView):
+    authentication_classes = [JWTAuthentication]
+    authentication_classes += [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self,request,pk=None):
+        if not pk:
+            venue=get_object_or_404(Venue,id=pk)
+            serializer = VenueSerailizer(venue)
+            if venue:
+
+                return Response({
+                    'status': 200,
+                    'message': 'Category Detail',
+                    'data': serializer.data
+                })
+            else:
+                return Response({
+                    'status': 404,
+                    'message': 'Category Not Found',
+                    'data': {'category_id': pk}
+                })
+        venues = Venue.objects.all()
+        serializers = VenueSerailizer(venues,many=True)
+        return Response({
+            'status': 200,
+            'message': 'venues List',
+            'data': serializers.data
+        })
+    def post(self,request):
+        serializer=VenueSerailizer(data=request.data)
+        if not serializer.is_valid():
+            return Response({
+                "status":400,
+                "message":"venues is not created",
+                "errors":serializer.errors
+                })
+        serializer.save()
+        return Response({
+            "status":200,
+            "message":"venues is created",
+            "data":serializer.data
+        })
+    def patch(self, request, pk=None):
+        if not pk:
+            return Response({'status': 400, 'message': 'Venue ID is required for update'}, status=400)
+
+        venue = get_object_or_404(Venue, pk=pk)
+        serializer = VenueSerailizer(venue, data=request.data, partial=True, context={'request': request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 200, 'message': 'Venue Updated', 'data': serializer.data}, status=200)
+
+        return Response({'status': 400, 'message': 'Venue Update Failed', 'errors': serializer.errors}, status=400)
+    def delete(self,request,pk=None):
+        if pk:
+            venue= Venue.objects.get(id=pk)
+            venue.delete()
+            return Response({
+                "status":200,
+                "message":"venue is delete succesfully",
+                "data":pk
+            })
+
+        
+
+        
 
 
 class EventRegisterView(APIView):

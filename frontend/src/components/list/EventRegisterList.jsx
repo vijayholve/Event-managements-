@@ -5,6 +5,7 @@ import { API_ENDPOINTS, API_EVENTREGISTER } from "../../features/base/config";
 import { useEventregisterContext } from "../../context/EventregisterContext";
 import axios from "axios";
 import PageLoader from "../loading/PageLoader";
+import { getValidAccessToken } from "../../auth/AccessToken";
 
 const EventregisterList = () => {
   const { eventregisters, setEventregisters, loading, setLoading } = useEventregisterContext();
@@ -13,14 +14,8 @@ const EventregisterList = () => {
   const handleDelete = async (eventregisterId) => {
     try {
       setDeleteLoading(true);
-      const tokens = JSON.parse(localStorage.getItem("tokens"));
-      let access = tokens?.access;
+            const access = await getValidAccessToken(navigate);
 
-      if (!access) {
-        console.log("User needs to login again.");
-        navigate("/login");
-        return;
-      }
 
       await axios.delete(`${API_EVENTREGISTER.VIEW_EVENTREGISTERS}${eventregisterId}/`, {
         headers: {
@@ -71,12 +66,12 @@ const EventregisterList = () => {
                   {eventregister.event_detail.title}
                 </td>
                 <td className="py-3 px-4 border-b font-medium">
-                  {eventregister.user}
+                  {eventregister.user?.name}
                 </td>
                 <td className="py-3 px-4 border-b">
-                  {eventregister.event_detail.category || "-"}
+                  {eventregister.event_detail.category?.name || "-"}
                 </td>
-                <td className="py-3 px-4 border-b">{eventregister.event_detail.venue}</td>
+                <td className="py-3 px-4 border-b">{eventregister.event_detail.venue?.name}</td>
                 <td className="py-3 px-4 border-b">
                   {new Date(eventregister.event_detail.start_time).toLocaleString()}
                 </td>

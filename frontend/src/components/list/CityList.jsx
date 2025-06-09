@@ -5,6 +5,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { API_ENDPOINTS, API_EVENT } from "../../features/base/config";
 import axios from "axios";
 import PageLoader from "../loading/PageLoader";
+import { getValidAccessToken } from "../../auth/AccessToken";
 
 const CityList = () => {
   const { cities, loading, setCities } = useEventContext();
@@ -14,25 +15,15 @@ const CityList = () => {
   const handleDelete = async (cityId) => {
     try {
       setDeleteLoading(true);
-      const tokens = JSON.parse(localStorage.getItem("tokens"));
-      let access = tokens?.access;
+            const access = await getValidAccessToken(navigate);
 
-      if (!access) {
-        console.log("User needs to login again.");
-        navigate("/login");
-        return;
-      }
-      if (!cityId) {
-        console.error("City ID is undefined");
-        return;
-    }
 
       await axios.delete(`${API_EVENT.CITY_VIEW}${cityId}/`, {
         headers: {
           Authorization: `Bearer ${access}`,
         },
-      }).then(res => {
-            console.log("City deleted successfully");
+      }).then((res) => {
+            console.log("City deleted successfully",res.data);
         })
         .catch(err => {
             console.error("Error deleting city:", err);

@@ -8,14 +8,14 @@ import { useEventContext } from "../../context/EventContext";
 const UpdateEventForm = () => {
   const { id: eventId } = useParams();
   const navigate = useNavigate();
-  const { categories = [], cities = [], venues = [] } = useEventContext();
+  const {setEvents, categories = [], cities = [], venues = [] } = useEventContext();
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "",
-    city: "",
-    venue: "",
+    category_id: "",
+    city_id: "",
+    venue_id: "",
     start_time: "",
     end_time: "",
     is_public: true,
@@ -47,9 +47,9 @@ const UpdateEventForm = () => {
         setFormData({
           title: data.title || "",
           description: data.description || "",
-          category: data.category || "",
-          venue: data.venue || "",
-          city: cityObj ? cityObj.id.toString() : "",
+          category_id: data.category || "",
+          venue_id: data.venue || "",
+          city_id: cityObj ? cityObj.id.toString() : "",
           start_time: data.start_time || "",
           end_time: data.end_time || "",
           is_public: data.is_public ?? true,
@@ -111,8 +111,14 @@ const UpdateEventForm = () => {
         }
       );
 
-      if (res.status === 200) {
+      if (res.status === 200 || res.status === 201) {
         setSuccessMsg("✅ Event updated successfully.");
+        const updatedEvent = res.data.data;
+        setEvents((prevEvents) =>
+          prevEvents.map((event) =>
+            event.id === updatedEvent.id ? updatedEvent : event
+          )
+        );
         navigate("/eventpanel");
       } else {
         throw new Error("Unexpected response from server");
@@ -138,10 +144,11 @@ const UpdateEventForm = () => {
     }
   };
 
-  const filteredVenues = formData.city
+  const filteredVenues = formData.city_id
     ? venues.filter(
         (v) =>
-          v.city === cities.find((c) => c.id.toString() === formData.city)?.name
+          v.city ===
+          cities.find((c) => c.id.toString() === formData.city_id)?.name
       )
     : [];
 
@@ -194,7 +201,7 @@ const UpdateEventForm = () => {
             Category
           </label>
           <select
-            name="category"
+            name="category_id"
             value={formData.category}
             onChange={handleChange}
             required
@@ -214,7 +221,7 @@ const UpdateEventForm = () => {
             City
           </label>
           <select
-            name="city"
+            name="city_id"
             value={formData.city}
             onChange={handleChange}
             required
@@ -234,7 +241,7 @@ const UpdateEventForm = () => {
             Venue
           </label>
           <select
-            name="venue"
+            name="venue_id"
             value={formData.venue}
             onChange={handleChange}
             required
